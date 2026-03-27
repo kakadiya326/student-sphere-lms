@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { createSubject, getSubjects } from '../../services/subjectService';
 import Toast from '../../components/Toast';
 
 const Subjects = () => {
+  const navigate = useNavigate()
   const [form, setForm] = useState({
     name: "",
     code: ""
@@ -23,7 +25,7 @@ const Subjects = () => {
   }
 
   useEffect(() => {
-    fetchSubjects()
+    fetchSubjects() // eslint-disable-line react-hooks/set-state-in-effect
   }, [])
 
   const handleChange = (event) => {
@@ -61,13 +63,47 @@ const Subjects = () => {
       </form>
 
       {/* Subject List */}
-      <ul>
-        {
-          subjects&&subjects.length>0&&subjects.map((subject) => (
-            <li key={subject._id}>{subject.name} - {subject.code}</li>
-          ))
-        }
-      </ul>
+      <div style={{ marginTop: '30px' }}>
+        <h3>Your Subjects</h3>
+        {subjects && subjects.length > 0 ? (
+          <div style={{ display: 'grid', gap: '15px' }}>
+            {subjects.map((subject) => (
+              <div key={subject._id} style={{
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                padding: '20px',
+                backgroundColor: 'white',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <h4 style={{ margin: '0 0 5px 0' }}>{subject.name}</h4>
+                  <p style={{ margin: '0', color: '#666' }}>Code: {subject.code}</p>
+                </div>
+                <button
+                  onClick={() => navigate(`/teacher/subjects/${subject._id}/lessons`)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📚 Manage Lessons
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
+            No subjects created yet. Add your first subject above.
+          </p>
+        )}
+      </div>
     </div>
   )
 }

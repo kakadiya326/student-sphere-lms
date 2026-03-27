@@ -8,7 +8,7 @@ export const getUserFromToken = () => {
 
     try {
         return jwtDecode(token)
-    } catch (error) {
+    } catch {
         return null
     }
 }

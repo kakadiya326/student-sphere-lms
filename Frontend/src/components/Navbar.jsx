@@ -6,8 +6,11 @@ const Navbar = () => {
     const navigate = useNavigate()
     const user = getUserFromToken()
     const handleLogout = () => {
-        console.log(user.role);
+        localStorage.removeItem('token')
+        navigate('/')
     }
+    console.log('navbar');
+    
     return (
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <h3>LSM</h3>

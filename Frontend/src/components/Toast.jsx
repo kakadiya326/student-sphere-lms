@@ -7,7 +7,7 @@ const Toast = ({ msgText, msgType, clearMessage }) => {
 
             return () => clearTimeout(timer)
         }
-    }, [msgText])
+    }, [msgText, clearMessage])
 
     if (!msgText) return null
     return (

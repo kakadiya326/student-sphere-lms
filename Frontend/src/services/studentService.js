@@ -1,7 +1,7 @@
 import api from "./api"
 
 export const getAllSubjects = () => {
-    return api.get("/student/subjects")
+    return api.get("/student/subject")
 }
 
 export const enrollSubject = (courseId) => {
@@ -14,4 +14,15 @@ export const getMySubjects = () => {
 
 export const updateProgress = (data) => {
     return api.post("/student/progress", data)
+}
+
+export const unEnrollSubject = (courseId) => {
+    return api.put("/student/unenroll", { courseId })
+}
+export const getStudentProfile = () => {
+    return api.get('/student/profile')
+}
+
+export const updateStudentProfile = (data) => {
+    return api.post('/student/profile', data)
 }

@@ -4,6 +4,8 @@ import { loginUser } from '../../services/authService'
 import { getToken, setToken } from '../../utils/storage'
 import { jwtDecode } from "jwt-decode"
 import Toast from '../../components/Toast'
+import { getStudentProfile } from '../../services/studentService'
+import { getTeacherProfile } from '../../services/teacherService'
 
 const Login = () => {
     const [form, setForm] = useState({
@@ -21,14 +23,32 @@ const Login = () => {
         if (token) {
             const user = jwtDecode(token);
             if (user.role === "teacher") {
-                navigate('/teacher')
+                // Check profile
+                getTeacherProfile().then(res => {
+                    if (res.data.teacher) {
+                        navigate('/teacher')
+                    } else {
+                        navigate('/complete-teacher-profile')
+                    }
+                }).catch(() => {
+                    navigate('/complete-teacher-profile')
+                })
             }
-            else {
-                navigate('/student')
+            else if (user.role === "student") {
+                // Check profile
+                getStudentProfile().then(res => {
+                    if (res.data.student) {
+                        navigate('/student')
+                    } else {
+                        navigate('/complete-profile')
+                    }
+                }).catch(() => {
+                    navigate('/complete-profile')
+                })
             }
         }
 
-    }, [])
+    }, [navigate])
 
     const handleChange = (event) => {
         setForm({
@@ -51,7 +71,18 @@ const Login = () => {
             if (user.role === "teacher") {
                 navigate("/teacher")
             } else if (user.role === "student") {
-                navigate("/student")
+                // Check if profile is complete
+                try {
+                    const profileRes = await getStudentProfile()
+                    if (profileRes.data.student) {
+                        navigate("/student")
+                    } else {
+                        navigate("/complete-profile")
+                    }
+                } catch {
+                    // If error getting profile, assume not complete
+                    navigate("/complete-profile")
+                }
             }
 
             setMessage("Login successful")

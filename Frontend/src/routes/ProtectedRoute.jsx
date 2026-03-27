@@ -10,15 +10,17 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         return <Navigate to="/" />
     }
 
+    let user;
     try {
-        const user = jwtDecode(token);
+        user = jwtDecode(token);
         // 🔥 Check if token is valid
         // jwtDecode(token)
-        if (allowedRoles && !allowedRoles.includes(user.role)) {
-            return <Navigate to={"/unauthorized"} />
-        }
-    } catch (e) {
+    } catch {
         return <Navigate to="/" />
+    }
+
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+        return <Navigate to={"/unauthorized"} />
     }
 
     // ✅ Valid token → allow access

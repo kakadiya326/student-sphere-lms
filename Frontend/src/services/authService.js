@@ -1,6 +1,6 @@
 import api from "./api"
 
-export const registerUser = () => {
+export const registerUser = (data) => {
     return api.post('/auth/register', data)
 }
 

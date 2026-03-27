@@ -14,14 +14,14 @@ const MySubjects = () => {
             setSubjects(res.data.subjects)
             setProgress(res.data.progress)
 
-        } catch (error) {
+        } catch {
             setMessage("Failed to load")
             setType("error")
         }
     }
 
     useEffect(() => {
-        fetchData();
+        fetchData(); // eslint-disable-line react-hooks/set-state-in-effect
     }, [])
 
     const handleProgress = async (courseId) => {

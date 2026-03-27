@@ -5,15 +5,15 @@ export const createSubject = (data) => {
 }
 
 export const getSubjects = () => {
-    return api.get("/admin/subjects");
+    return api.get("/admin/subject");
 }
 
 export const updateSubject = (newData, subjectID) => {
-    return api.put(`/admin/subjects/${subjectID}`);
+    return api.put(`/admin/subject/${subjectID}`);
 }
 
 export const deleteSubject = (subjectID) => {
-    return api.delete(`/admin/subjects/${subjectID}`);
+    return api.delete(`/admin/subject/${subjectID}`);
 }
 
 export const getMySubjects = () => {

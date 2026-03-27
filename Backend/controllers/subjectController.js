@@ -30,7 +30,7 @@ let getSubjects = async (req, res) => {
         let subjects = await subjectModel.find().populate({
             path: "teacherId",
             populate: {
-                path: "_id",
+                path: "userId",
                 select: "name email"
             }
         })
