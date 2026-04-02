@@ -71,6 +71,18 @@ let getLessonsBySubject = async (req, res) => {
     try {
         const { subjectId } = req.params
 
+        const subject = await subjectModel.findById(subjectId)
+        if (!subject) {
+            return res.json({ error: "Subject not found" })
+        }
+
+        if (req.user.role === 'teacher') {
+            const teacher = await teacherModel.findOne({ userId: req.user.id })
+            if (!teacher || subject.teacherId.toString() !== teacher._id.toString()) {
+                return res.json({ error: "Not authorized to view lessons for this subject" })
+            }
+        }
+
         const lessons = await lessonModel.find({
             subjectId,
             isActive: true
@@ -87,9 +99,16 @@ let getLesson = async (req, res) => {
     try {
         const { id } = req.params
 
-        const lesson = await lessonModel.findById(id).populate('subjectId', 'name code')
+        const lesson = await lessonModel.findById(id).populate('subjectId', 'name code teacherId')
         if (!lesson) {
             return res.json({ "error": "Lesson not found" })
+        }
+
+        if (req.user.role === 'teacher') {
+            const teacher = await teacherModel.findOne({ userId: req.user.id })
+            if (!teacher || lesson.subjectId.teacherId.toString() !== teacher._id.toString()) {
+                return res.json({ "error": "Not authorized to view this lesson" })
+            }
         }
 
         res.json({ lesson })

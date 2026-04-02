@@ -39,6 +39,15 @@ let getSubjects = async (req, res) => {
             filter.name = { $regex: search, $options: "i" }
         }
 
+        if (req.user.role === 'teacher') {
+            // Find the teacher document
+            const teacher = await teacherModel.findOne({ userId: req.user.id })
+            if (!teacher) {
+                return res.json({ subjects: [] })
+            }
+            filter.teacherId = teacher._id
+        }
+
         let subjects = await subjectModel
             .find(filter)
             .populate({
@@ -72,7 +81,7 @@ let updateSubject = async (req, res) => {
         if (!subjectId) return res.json({ "warning": "Subject id not selected" })
 
         let subject = await subjectModel.findOneAndUpdate(
-            { _id: subjectId, teacherId: userId },
+            { _id: subjectId, teacherId: teacher._id },
             req.body,
             { new: true }
         )

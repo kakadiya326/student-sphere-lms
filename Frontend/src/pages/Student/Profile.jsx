@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getStudentProfile, updateStudentProfile } from '../../services/studentService'
 import Toast from '../../components/Toast'
 import '../../styles/Profile.css'
+import { removeToken } from '../../utils/storage'
 
 const StudentProfile = () => {
     const navigate = useNavigate()
@@ -11,17 +12,32 @@ const StudentProfile = () => {
     const [message, setMessage] = useState("")
     const [type, setType] = useState("")
     const [loading, setLoading] = useState(true)
+console.log(profile);
 
-    const fetchProfile = async () => {
-        try {
-            const res = await getStudentProfile()
-            setProfile(res.data.student || {})
-            setForm({ department: res.data.student?.department || '' })
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false)
-        }
+    const fetchProfile = () => {
+        setLoading(true)
+        getStudentProfile()
+            .then((res) => {
+                setProfile(res.data.student || {})
+                setForm({ department: res.data.student?.department || '' })
+                setLoading(false)
+            })
+            .catch((error) => {
+                console.log(error)
+                if (error.response && error.response.status === 401) {
+                    setMessage("Session expired. Please login again.")
+                    setType("error")
+                    removeToken()
+                    navigate('/')
+                } else if (error.response && error.response.status === 403) {
+                    setMessage("You don't have permission to view this profile.")
+                    setType("error")
+                } else {
+                    setMessage(error.response?.data?.message || "Failed to load profile")
+                    setType("error")
+                }
+                setLoading(false)
+            })
     }
 
     useEffect(() => {
@@ -35,18 +51,29 @@ const StudentProfile = () => {
         })
     }
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault()
-        try {
-            await updateStudentProfile(form)
-            setMessage("Profile updated successfully")
-            setType("success")
-            fetchProfile() // Refresh profile
-        } catch (error) {
-            console.log(error)
-            setMessage("Error updating profile")
-            setType("error")
-        }
+        updateStudentProfile(form)
+            .then(() => {
+                setMessage("Profile updated successfully")
+                setType("success")
+                fetchProfile() // Refresh profile
+            })
+            .catch((error) => {
+                console.log(error)
+                if (error.response && error.response.status === 401) {
+                    setMessage("Session expired. Please login again.")
+                    setType("error")
+                    removeToken()
+                    navigate('/')
+                } else if (error.response && error.response.status === 403) {
+                    setMessage("You don't have permission to update this profile.")
+                    setType("error")
+                } else {
+                    setMessage(error.response?.data?.message || "Error updating profile")
+                    setType("error")
+                }
+            })
     }
 
     if (loading) {
@@ -64,7 +91,7 @@ const StudentProfile = () => {
 
             <div className="profile-actions">
                 <button
-                    onClick={() => navigate('/student/dashboard')}
+                    onClick={() => navigate('/student')}
                     className="btn-profile-secondary"
                 >
                     ← Back to Dashboard
@@ -83,18 +110,18 @@ const StudentProfile = () => {
                         <div className="profile-picture">
                             {profile.name ? profile.name.charAt(0).toUpperCase() : '👤'}
                         </div>
-                        <h3 className="profile-name">{profile.name || 'Student'}</h3>
+                        <h3 className="profile-name">{profile._id.name || 'Student'}</h3>
                         <p className="profile-role">Student</p>
                     </div>
 
                     <div className="profile-info">
                         <div className="info-item">
                             <span className="info-label">Email</span>
-                            <span className="info-value">{profile.email}</span>
+                            <span className="info-value">{profile._id.email}</span>
                         </div>
                         <div className="info-item">
                             <span className="info-label">Roll Number</span>
-                            <span className="info-value">{profile.rollNumber || 'Not set'}</span>
+                            <span className="info-value">{profile.enrollment || 'Not set'}</span>
                         </div>
                         <div className="info-item">
                             <span className="info-label">Department</span>
@@ -102,7 +129,7 @@ const StudentProfile = () => {
                         </div>
                         <div className="info-item">
                             <span className="info-label">Year</span>
-                            <span className="info-value">{profile.year || 'Not set'}</span>
+                            <span className="info-value">{profile.createdAt.split('-')[0] || 'Not set'}</span>
                         </div>
                     </div>
                 </div>
@@ -160,7 +187,7 @@ const StudentProfile = () => {
                         <div className="section-body">
                             <div className="progress-overview">
                                 <div className="progress-item">
-                                    <div className="progress-number">{profile.enrolledSubjects?.length || 0}</div>
+                                    <div className="progress-number">{profile.courseIds?.length || 0}</div>
                                     <div className="progress-label">Enrolled Subjects</div>
                                 </div>
                                 <div className="progress-item">
@@ -170,7 +197,7 @@ const StudentProfile = () => {
                                 <div className="progress-item">
                                     <div className="progress-number">
                                         {profile.enrolledSubjects?.length > 0 ?
-                                            Math.round((profile.completedSubjects?.length || 0) / profile.enrolledSubjects.length * 100) : 0}%
+                                            Math.round((profile.completedSubjects?.length || 0) / profile.progress.length * 100) : 0}%
                                     </div>
                                     <div className="progress-label">Overall Progress</div>
                                 </div>

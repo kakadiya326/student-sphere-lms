@@ -168,7 +168,7 @@ const Navbar = () => {
                             borderLeft: '1px solid #ddd'
                         }}>
                             <span style={{ fontSize: '14px', color: '#666' }}>
-                                👤 {user.name} ({user.role})
+                                👤 {user.name || user.email} ({user.role})
                             </span>
                             <button
                                 onClick={handleLogout}

@@ -8,6 +8,7 @@ import {
 } from '../../services/studentService'
 import Toast from '../../components/Toast'
 import '../../styles/Subjects.css'
+import { removeToken } from '../../utils/storage'
 
 const Subjects = () => {
     const navigate = useNavigate()
@@ -20,21 +21,30 @@ const Subjects = () => {
     const [filterByStatus, setFilterByStatus] = useState("all") // all, enrolled, available
 
     // ✅ Fetch both all subjects + enrolled subjects
-    const fetchSubjects = async () => {
-        try {
-            setLoading(true)
-            const res = await getAllSubjects()
-            const mysub = await getMySubjects()
-
-            setSubjects(res.data.subjects || [])
-            setMySubjects(mysub.data.subjects || [])
-
-        } catch {
-            setMessage("Failed to load subjects")
-            setType("error")
-        } finally {
-            setLoading(false)
-        }
+    const fetchSubjects = () => {
+        setLoading(true)
+        Promise.all([getAllSubjects(), getMySubjects()])
+            .then(([res, mysub]) => {
+                setSubjects(res.data.subjects || [])
+                setMySubjects(mysub.data.subjects || [])
+                setLoading(false)
+            })
+            .catch((error) => {
+                console.log(error)
+                if (error.response && error.response.status === 401) {
+                    setMessage("Session expired. Please login again.")
+                    setType("error")
+                    removeToken()
+                    navigate('/')
+                } else if (error.response && error.response.status === 403) {
+                    setMessage("You don't have permission to view subjects.")
+                    setType("error")
+                } else {
+                    setMessage(error.response?.data?.message || "Failed to load subjects")
+                    setType("error")
+                }
+                setLoading(false)
+            })
     }
 
     useEffect(() => {
@@ -47,29 +57,53 @@ const Subjects = () => {
     }
 
     // ✅ Enroll
-    const handleEnroll = async (id) => {
-        try {
-            await enrollSubject(id)
-            setMessage("Enrolled successfully!")
-            setType("success")
-            fetchSubjects() // refresh UI
-        } catch {
-            setMessage("Enrollment failed")
-            setType("error")
-        }
+    const handleEnroll = (id) => {
+        enrollSubject(id)
+            .then(() => {
+                setMessage("Enrolled successfully!")
+                setType("success")
+                fetchSubjects() // refresh UI
+            })
+            .catch((error) => {
+                console.log(error)
+                if (error.response && error.response.status === 401) {
+                    setMessage("Session expired. Please login again.")
+                    setType("error")
+                    removeToken()
+                    navigate('/')
+                } else if (error.response && error.response.status === 403) {
+                    setMessage("You don't have permission to enroll.")
+                    setType("error")
+                } else {
+                    setMessage(error.response?.data?.message || "Enrollment failed")
+                    setType("error")
+                }
+            })
     }
 
     // ✅ Unenroll
-    const handleUnenroll = async (id) => {
-        try {
-            await unEnrollSubject(id)
-            setMessage("Unenrolled successfully!")
-            setType("success")
-            fetchSubjects() // refresh UI
-        } catch {
-            setMessage("Unenroll failed")
-            setType("error")
-        }
+    const handleUnenroll = (id) => {
+        unEnrollSubject(id)
+            .then(() => {
+                setMessage("Unenrolled successfully!")
+                setType("success")
+                fetchSubjects() // refresh UI
+            })
+            .catch((error) => {
+                console.log(error)
+                if (error.response && error.response.status === 401) {
+                    setMessage("Session expired. Please login again.")
+                    setType("error")
+                    removeToken()
+                    navigate('/')
+                } else if (error.response && error.response.status === 403) {
+                    setMessage("You don't have permission to unenroll.")
+                    setType("error")
+                } else {
+                    setMessage(error.response?.data?.message || "Unenroll failed")
+                    setType("error")
+                }
+            })
     }
 
     // ✅ Filter and search subjects
@@ -96,7 +130,7 @@ const Subjects = () => {
 
             <div className="subjects-actions">
                 <button
-                    onClick={() => navigate('/student/dashboard')}
+                    onClick={() => navigate('/student')}
                     className="btn-subjects-secondary"
                 >
                     ← Back to Dashboard
