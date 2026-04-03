@@ -25,7 +25,8 @@ let storage = multer.diskStorage({
 let upload = multer({ storage: storage })
 
 router.post('/sendotp', sendOTP);
-router.post('/register', verifyOTP, register)
+router.post('/verifyotp', verifyOTP, (req, res) => res.json({ "success": "OTP verified successfully" }));
+router.post('/register', register)
 router.post('/login', login)
 router.post('/upload-profile-pic', verifyToken, upload.single('profilePic'), uploadProfilePic)
 

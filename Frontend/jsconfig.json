@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true
   },
-  "include": ["**/*"]
+  "include": ["src/**/*"]
 }

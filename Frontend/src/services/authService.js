@@ -11,3 +11,7 @@ export const loginUser = (data) => {
 export const verifyEmail = (userEmail) => {
     return api.post("/auth/sendotp", userEmail)
 }
+
+export const verifyOtp = (data) => {
+    return api.post("/auth/verifyotp", data)
+}

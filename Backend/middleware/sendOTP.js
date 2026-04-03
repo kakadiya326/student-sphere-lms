@@ -7,6 +7,8 @@ const sendOTP = async (req, res) => {
     try {
         const { email } = req.body;
 
+        console.log('-------------------------------------------------------', req, req.body);
+
         // ⏱️ Resend restriction (60 sec)
         const existing = await otpModel.findOne({ email: email });
 
@@ -30,7 +32,7 @@ const sendOTP = async (req, res) => {
         if (!result) {
             return res.json({ "error": "Failed to send OTP" });
         } else {
-            return res.json({ "success": "OTP sent successfully" });
+            return res.json({ "success": "OTP sent successfully", "otpFlag": true });
         }
 
     } catch (err) {

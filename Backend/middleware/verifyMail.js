@@ -8,7 +8,7 @@ let verifyOTP = async (req, res, next) => {
 
         if (!record) return res.json({ "warning": "Send OTP to registered email address" })
 
-        if (Date.now() > record.expiresAt) {
+        if (Date.now() > record.ExpiresAt) {
             await otpModel.deleteOne({ email: email });
             return res.json({ "warning": "OTP expired" });
         }

@@ -35,10 +35,10 @@ let login = async (req, res) => {
             return res.status(401).json({ "warning": "User doesn't exists." })
         }
 
-        // let isMatch = await bcrypt.compare(password, user.password)
-        // if (!isMatch) {
-        //     return res.status(401).json({ "warning": "Password not matched." })
-        // }
+        let isMatch = await bcrypt.compare(password, user.password)
+        if (!isMatch) {
+            return res.status(401).json({ "warning": "Password not matched." })
+        }
         let token = await jwt.sign({ id: user._id, role: user.role, name: user.name, email: user.email }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN })
         res.json({ "success": "Login success", "userData": { ...user._doc, "password": "" }, token })
     } catch (e) {
