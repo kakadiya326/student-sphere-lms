@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getTeacherProfile, updateTeacherProfile } from '../../services/teacherService'
 import Toast from '../../components/Toast'
+import Loader from '../../components/Loader'
 import '../../styles/Profile.css'
 import { removeToken } from '../../utils/storage'
 import api from '../../services/api'
@@ -19,7 +20,6 @@ const MyProfile = () => {
     const [uploadedProfilePic, setUploadedProfilePic] = useState(null)
     const [uploading, setUploading] = useState(false)
     const [imageError, setImageError] = useState(false)
-    console.log(profile);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0]
@@ -41,8 +41,10 @@ const MyProfile = () => {
             formData
         )
             .then((res) => {
-                setMessage("Profile picture updated successfully")
-                setType("success")
+                if (res.data.success) {
+                    setMessage(res.data.success)
+                    setType("success")
+                }
                 setSelectedFile(null)
                 setPreview(null)
                 setImageError(false)
@@ -56,8 +58,16 @@ const MyProfile = () => {
             })
             .catch((error) => {
                 console.log(error)
-                setMessage(error.response?.data?.message || "Error uploading profile picture")
-                setType("error")
+                if (error.response?.data?.error) {
+                    setMessage(error.response.data.error)
+                    setType("error")
+                } else if (error.response?.data?.warning) {
+                    setMessage(error.response.data.warning)
+                    setType("warning")
+                } else {
+                    setMessage(error.response?.data?.message || "Error uploading profile picture")
+                    setType("error")
+                }
             })
             .finally(() => {
                 setUploading(false)
@@ -75,7 +85,6 @@ const MyProfile = () => {
         setLoading(true)
         getTeacherProfile()
             .then((res) => {
-                console.log('dataaaaaaaaa', res.data);
 
                 setProfile(res.data.teacher || {})
                 setForm({ department: res.data.teacher?.department || '' })
@@ -91,6 +100,12 @@ const MyProfile = () => {
                 } else if (error.response && error.response.status === 403) {
                     setMessage("You don't have permission to view this profile.")
                     setType("error")
+                } else if (error.response?.data?.error) {
+                    setMessage(error.response.data.error)
+                    setType("error")
+                } else if (error.response?.data?.warning) {
+                    setMessage(error.response.data.warning)
+                    setType("warning")
                 } else {
                     setMessage(error.response?.data?.message || "Failed to load profile")
                     setType("error")
@@ -113,9 +128,11 @@ const MyProfile = () => {
     const handleSubmit = (e) => {
         e.preventDefault()
         updateTeacherProfile(form)
-            .then(() => {
-                setMessage("Profile updated successfully")
-                setType("success")
+            .then((res) => {
+                if (res.data.success) {
+                    setMessage(res.data.success)
+                    setType("success")
+                }
                 fetchProfile() // Refresh profile
             })
             .catch((error) => {
@@ -128,6 +145,12 @@ const MyProfile = () => {
                 } else if (error.response && error.response.status === 403) {
                     setMessage("You don't have permission to update this profile.")
                     setType("error")
+                } else if (error.response?.data?.error) {
+                    setMessage(error.response.data.error)
+                    setType("error")
+                } else if (error.response?.data?.warning) {
+                    setMessage(error.response.data.warning)
+                    setType("warning")
                 } else {
                     setMessage(error.response?.data?.message || "Error updating profile")
                     setType("error")
@@ -135,17 +158,9 @@ const MyProfile = () => {
             })
     }
 
-    const profilePicUrl = profile.userId?.profilePic ? `http://localhost:5000/profilePics/${profile.userId.profilePic}?t=${Date.now()}` : null
-    const uploadedPicUrl = uploadedProfilePic ? `http://localhost:5000/profilePics/${uploadedProfilePic}?t=${Date.now()}` : null
+    const profilePicUrl = profile.userId?.profilePic ? `https://lms-apis-ht78.onrender.com/profilePics/${profile.userId.profilePic}?t=${Date.now()}` : null
+    const uploadedPicUrl = uploadedProfilePic ? `https://lms-apis-ht78.onrender.com/profilePics/${uploadedProfilePic}?t=${Date.now()}` : null
     const imageUrl = !imageError ? (preview || uploadedPicUrl || profilePicUrl) : null
-
-    if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
-    }
 
     return (
         <div className="profile-container">
@@ -166,14 +181,20 @@ const MyProfile = () => {
             </div>
 
             <Toast
-                msgText={message}
-                msgType={type}
-                clearMessage={() => setMessage("")}
+                message={message}
+                type={type}
+                onClose={() => setMessage("")}
             />
 
             <div className="profile-layout">
-                <div className="profile-sidebar">
-                    <div className="profile-picture-section">
+                {loading ? (
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                        <Loader text="Loading profile..." />
+                    </div>
+                ) : (
+                    <>
+                            <div className="profile-sidebar">
+                                <div className="profile-picture-section">
                         <div className="profile-picture">
                             {imageUrl ? (
                                 <img
@@ -313,6 +334,8 @@ const MyProfile = () => {
                         </div>
                     </div>
                 </div>
+                    </>
+                )}
             </div>
         </div>
     )

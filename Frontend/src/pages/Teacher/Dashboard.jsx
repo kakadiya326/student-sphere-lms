@@ -1,46 +1,45 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getTeacherProfile } from '../../services/teacherService'
-import { getMySubjects } from '../../services/subjectService'
+import { getSubjects } from '../../services/subjectService'
+import Loader from '../../components/Loader'
 
 const Dashboard = () => {
     const navigate = useNavigate()
     const [subjects, setSubjects] = useState([])
     const [profileCompleted, setProfileCompleted] = useState(false)
-    const [loading, setLoading] = useState(true)
+    const [loadingProfile, setLoadingProfile] = useState(true)
+    const [loadingSubjects, setLoadingSubjects] = useState(true)
 
     useEffect(() => {
-        checkProfile()
-        getMySubjects().then((res) => {
-            setSubjects(res.data.subjects || [])
-        })
+        const loadDashboard = async () => {
+            setLoadingProfile(true)
+            setLoadingSubjects(true)
 
-    }, [])
-
-    const checkProfile = async () => {
-        try {
-            const res = await getTeacherProfile()
-            setProfileCompleted(!!res.data.teacher)
-        } catch {
-            setProfileCompleted(false)
-        } finally {
-            setLoading(false)
+            try {
+                const [profileRes, subjectsRes] = await Promise.all([
+                    getTeacherProfile(),
+                    getSubjects()
+                ])
+                setProfileCompleted(!!profileRes.data.teacher)
+                setSubjects(subjectsRes.data.subjects || [])
+            } catch (error) {
+                setProfileCompleted(false)
+                setSubjects([])
+            } finally {
+                setLoadingProfile(false)
+                setLoadingSubjects(false)
+            }
         }
-    }
 
-    if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
-    }
+        loadDashboard()
+    }, [])
 
     return (
         <div style={{ padding: '20px' }}>
             <h1>👨‍🏫 Teacher Dashboard</h1>
 
-            {!profileCompleted && (
+            {!loadingProfile && !profileCompleted && (
                 <div style={{
                     backgroundColor: '#fff3cd',
                     border: '1px solid #ffeaa7',
@@ -76,9 +75,9 @@ const Dashboard = () => {
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
-                        cursor: profileCompleted ? 'pointer' : 'not-allowed'
+                        cursor: profileCompleted && !loadingProfile ? 'pointer' : 'not-allowed'
                     }}
-                    disabled={!profileCompleted}
+                    disabled={!profileCompleted || loadingProfile}
                 >
                     Manage Subjects
                 </button>
@@ -100,7 +99,9 @@ const Dashboard = () => {
             <div style={{ marginTop: '30px' }}>
                 <h2>📚 My Subjects</h2>
 
-                {subjects.length > 0 ? (
+                {loadingSubjects ? (
+                    <Loader text="Loading subjects..." />
+                ) : subjects.length > 0 ? (
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -135,15 +136,11 @@ const Dashboard = () => {
                                 </p>
 
                                 <p style={{ margin: '5px 0', color: '#555' }}>
-                                    <strong>Teacher:</strong> {subject.teacherId?.userId?.name}
-                                </p>
-
-                                <p style={{ margin: '5px 0', color: '#555' }}>
-                                    <strong>Email:</strong> {subject.teacherId?.userId?.email}
+                                    <strong>Status:</strong> Active
                                 </p>
 
                                 <button
-                                    // onClick={() => navigate(`/teacher/subjects/${subject._id}`)}
+                                    onClick={() => navigate(`/teacher/subjects/${subject._id}/lessons`)}
                                     style={{
                                         marginTop: '10px',
                                         padding: '8px 12px',
@@ -154,7 +151,7 @@ const Dashboard = () => {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    View Details
+                                    Manage Lessons
                                 </button>
                             </div>
                         ))}

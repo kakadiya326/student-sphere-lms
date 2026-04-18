@@ -34,7 +34,7 @@ let createLesson = async (req, res) => {
 
         const teacher = await teacherModel.findOne({ userId: userId })
         if (!teacher) {
-            return res.json({ warning: "Teacher profile not found" })
+            return res.json({ "warning": "Teacher profile not found" })
         }
 
         const subject = await subjectModel.findOne({
@@ -43,7 +43,7 @@ let createLesson = async (req, res) => {
         })
 
         if (!subject) {
-            return res.json({ error: "Subject not found or not authorized" })
+            return res.json({ "error": "Subject not found or not authorized" })
         }
 
         const lesson = new lessonModel({
@@ -59,11 +59,11 @@ let createLesson = async (req, res) => {
 
         await lesson.save()
 
-        res.json({ success: "Lesson created", lesson })
+        res.json({ "success": "Lesson created", lesson })
 
     } catch (error) {
         console.log(error)
-        res.json({ error: "Error creating lesson" })
+        res.json({ "error": "Error creating lesson" })
     }
 }
 
@@ -73,13 +73,13 @@ let getLessonsBySubject = async (req, res) => {
 
         const subject = await subjectModel.findById(subjectId)
         if (!subject) {
-            return res.json({ error: "Subject not found" })
+            return res.json({ "error": "Subject not found" })
         }
 
         if (req.user.role === 'teacher') {
             const teacher = await teacherModel.findOne({ userId: req.user.id })
             if (!teacher || subject.teacherId.toString() !== teacher._id.toString()) {
-                return res.json({ error: "Not authorized to view lessons for this subject" })
+                return res.json({ "error": "Not authorized to view lessons for this subject" })
             }
         }
 
@@ -289,20 +289,20 @@ let submitAssignment = async (req, res) => {
 
         const student = await studentModel.findById(studentId)
         if (!student) {
-            return res.status(401).json({ error: 'Student profile not found' })
+            return res.status(401).json({ "error": 'Student profile not found' })
         }
 
         const lesson = await lessonModel.findById(lessonId).populate('subjectId')
         if (!lesson) {
-            return res.status(404).json({ error: 'Lesson not found' })
+            return res.status(404).json({ "error": 'Lesson not found' })
         }
 
         if (!lesson.subjectId) {
-            return res.status(400).json({ error: 'Lesson subject not found' })
+            return res.status(400).json({ "error": 'Lesson subject not found' })
         }
 
         if (!student.courseIds.includes(lesson.subjectId._id)) {
-            return res.status(403).json({ error: 'Not enrolled in this subject' })
+            return res.status(403).json({ "error": 'Not enrolled in this subject' })
         }
 
         // Handle file uploads
@@ -333,10 +333,10 @@ let submitAssignment = async (req, res) => {
             { upsert: true, new: true }
         )
 
-        res.json({ success: 'Assignment submitted', submission })
+        res.json({ "success": 'Assignment submitted', submission })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ error: 'Error submitting assignment' })
+        res.status(500).json({ "error": 'Error submitting assignment' })
     }
 }
 
@@ -353,7 +353,7 @@ let getStudentSubmissions = async (req, res) => {
         res.json({ submissions })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ error: 'Error fetching submissions' })
+        res.status(500).json({ "error": 'Error fetching submissions' })
     }
 }
 
@@ -390,7 +390,7 @@ let getAllStudentSubmissions = async (req, res) => {
         res.json({ submissions: transformedSubmissions })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ error: 'Error fetching submissions' })
+        res.status(500).json({ "error": 'Error fetching submissions' })
     }
 }
 
@@ -433,7 +433,7 @@ let gradeSubmission = async (req, res) => {
         // Find the teacher document
         const teacher = await teacherModel.findOne({ userId: userId })
         if (!teacher) {
-            return res.status(401).json({ error: 'Teacher profile not found' })
+            return res.status(401).json({ "error": 'Teacher profile not found' })
         }
 
         const submission = await submissionModel.findById(submissionId).populate({
@@ -442,15 +442,15 @@ let gradeSubmission = async (req, res) => {
         })
 
         if (!submission) {
-            return res.status(404).json({ error: 'Submission not found' })
+            return res.status(404).json({ "error": 'Submission not found' })
         }
 
         if (!submission.lessonId || !submission.lessonId.subjectId) {
-            return res.status(400).json({ error: 'Invalid submission references' })
+            return res.status(400).json({ "error": 'Invalid submission references' })
         }
 
         if (submission.lessonId.subjectId.teacherId.toString() !== teacher._id.toString()) {
-            return res.status(403).json({ error: 'Not authorized to grade this submission' })
+            return res.status(403).json({ "error": 'Not authorized to grade this submission' })
         }
 
         // Accept both 'grade' and 'score' fields for flexibility

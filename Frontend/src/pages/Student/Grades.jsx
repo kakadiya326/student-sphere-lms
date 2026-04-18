@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api'
 import Toast from '../../components/Toast'
+import Loader from '../../components/Loader'
 import '../../styles/Grades.css'
 
 const StudentGrades = () => {
@@ -22,8 +23,16 @@ const StudentGrades = () => {
             setSubmissions(response.data.submissions || [])
         } catch (error) {
             console.log(error)
-            setMessage("Failed to load submissions")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to load submissions")
+                setType("error")
+            }
         } finally {
             setLoading(false)
         }
@@ -65,14 +74,6 @@ const StudentGrades = () => {
     const stats = calculateStats()
     const filteredSubmissions = getFilteredSubmissions()
 
-    if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
-    }
-
     return (
         <div className="grades-container">
             <div className="grades-header">
@@ -81,13 +82,19 @@ const StudentGrades = () => {
             </div>
 
             <Toast
-                msgText={message}
-                msgType={type}
-                clearMessage={() => setMessage("")}
+                message={message}
+                type={type}
+                onClose={() => setMessage("")}
             />
 
-            {/* Statistics Cards */}
-            <div className="stats-grid">
+            {loading ? (
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                    <Loader text="Loading grades..." />
+                </div>
+            ) : (
+                <>
+                        {/* Statistics Cards */}
+                        <div className="stats-grid">
                 <div className="stat-card">
                     <div className="stat-number stat-total">{stats.total}</div>
                     <div className="stat-label">Total Submissions</div>
@@ -188,6 +195,8 @@ const StudentGrades = () => {
                     </div>
                 )}
             </div>
+                </>
+            )}
 
             {/* Detail Modal */}
             {selectedSubmission && (

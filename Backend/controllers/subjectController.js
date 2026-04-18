@@ -24,10 +24,10 @@ let createSubject = async (req, res) => {
             { $addToSet: { subjects: subject._id } }
         )
 
-        res.status(201).json({ success: 'Subject created', subject })
+        res.status(201).json({ "success": 'Subject created', subject })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ error: 'Error creating subject' })
+        res.status(500).json({ "error": 'Error creating subject' })
     }
 }
 
@@ -85,13 +85,13 @@ let updateSubject = async (req, res) => {
         )
 
         if (!subject) {
-            return res.status(403).json({ error: 'Not authorized or not found' })
+            return res.status(403).json({ "error": 'Not authorized or not found' })
         }
 
-        res.json({ success: 'Subject updated', subject })
+        res.json({ "success": 'Subject updated', subject })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ error: 'Error updating subject' })
+        res.status(500).json({ "error": 'Error updating subject' })
     }
 }
 
@@ -116,7 +116,7 @@ let deleteSubject = async (req, res) => {
         })
 
         if (!subject) {
-            return res.status(403).json({ error: 'Not authorized or not found' })
+            return res.status(403).json({ "error": 'Not authorized or not found' })
         }
 
         await teacherModel.findByIdAndUpdate(
@@ -124,11 +124,11 @@ let deleteSubject = async (req, res) => {
             { $pull: { subjects: req.params.id } }
         )
 
-        res.json({ success: 'Subject deleted' })
+        res.json({ "success": 'Subject deleted' })
 
     } catch (e) {
         console.error(e)
-        res.status(500).json({ error: 'Error deleting subject' })
+        res.status(500).json({ "error": 'Error deleting subject' })
     }
 }
 

@@ -122,6 +122,9 @@ a {
     background-color: #ff4d4f;
 }
 
+.toast.warning {
+    background-color: #faad14;
+}
 @keyframes slideIn {
     from {
         transform: translateX(100%);
@@ -145,6 +148,25 @@ a {
     z-index: 9999;
 }
 
+.loader-inline {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 220px;
+    padding: 40px 0;
+    background: rgba(255, 255, 255, 0.94);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.loader-text {
+    margin-top: 14px;
+    color: #555;
+    font-size: 1rem;
+    font-weight: 500;
+}
 .myspin {
     width: 60px;
     height: 60px;

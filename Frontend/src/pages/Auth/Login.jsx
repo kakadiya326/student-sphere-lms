@@ -103,8 +103,16 @@ const Login = () => {
 
         } catch (error) {
             console.log(error);
-            setMessage("Login failed")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Login failed")
+                setType("error")
+            }
         }
     }
     return (
@@ -120,9 +128,9 @@ const Login = () => {
                 </div>
 
                 <Toast
-                    msgText={message}
-                    msgType={type}
-                    clearMessage={() => setMessage("")}
+                    message={message}
+                    type={type}
+                    onClose={() => setMessage("")}
                 />
 
                 <form onSubmit={handleSubmit} className="auth-form">

@@ -91,6 +91,32 @@
     color: #999;
 }
 
+.btn-danger {
+    width: 100%;
+    padding: 14px;
+    background-color: #e57373;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #d32f2f; /* darker red on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(211, 47, 47, 0.3);
+}
+
+.btn-danger:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .btn-primary {
     width: 100%;
     padding: 16px;

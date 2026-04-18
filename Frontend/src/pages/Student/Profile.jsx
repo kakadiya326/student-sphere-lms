@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getStudentProfile, updateStudentProfile } from '../../services/studentService'
 import Toast from '../../components/Toast'
+import Loader from '../../components/Loader'
 import '../../styles/Profile.css'
 import { removeToken } from '../../utils/storage'
 import api from '../../services/api'
@@ -38,6 +39,12 @@ const StudentProfile = () => {
                 } else if (error.response && error.response.status === 403) {
                     setMessage("You don't have permission to view this profile.")
                     setType("error")
+                } else if (error.response?.data?.error) {
+                    setMessage(error.response.data.error)
+                    setType("error")
+                } else if (error.response?.data?.warning) {
+                    setMessage(error.response.data.warning)
+                    setType("warning")
                 } else {
                     setMessage(error.response?.data?.message || "Failed to load profile")
                     setType("error")
@@ -70,8 +77,10 @@ const StudentProfile = () => {
             formData
         )
             .then((res) => {
-                setMessage("Profile picture updated successfully")
-                setType("success")
+                if (res.data.success) {
+                    setMessage(res.data.success)
+                    setType("success")
+                }
                 setSelectedFile(null)
                 setPreview(null)
                 setImageError(false)
@@ -85,8 +94,16 @@ const StudentProfile = () => {
             })
             .catch((error) => {
                 console.log(error)
-                setMessage(error.response?.data?.message || "Error uploading profile picture")
-                setType("error")
+                if (error.response?.data?.error) {
+                    setMessage(error.response.data.error)
+                    setType("error")
+                } else if (error.response?.data?.warning) {
+                    setMessage(error.response.data.warning)
+                    setType("warning")
+                } else {
+                    setMessage(error.response?.data?.message || "Error uploading profile picture")
+                    setType("error")
+                }
             })
             .finally(() => {
                 setUploading(false)
@@ -110,9 +127,11 @@ const StudentProfile = () => {
     const handleSubmit = (e) => {
         e.preventDefault()
         updateStudentProfile(form)
-            .then(() => {
-                setMessage("Profile updated successfully")
-                setType("success")
+            .then((res) => {
+                if (res.data.success) {
+                    setMessage(res.data.success)
+                    setType("success")
+                }
                 fetchProfile() // Refresh profile
             })
             .catch((error) => {
@@ -125,6 +144,12 @@ const StudentProfile = () => {
                 } else if (error.response && error.response.status === 403) {
                     setMessage("You don't have permission to update this profile.")
                     setType("error")
+                } else if (error.response?.data?.error) {
+                    setMessage(error.response.data.error)
+                    setType("error")
+                } else if (error.response?.data?.warning) {
+                    setMessage(error.response.data.warning)
+                    setType("warning")
                 } else {
                     setMessage(error.response?.data?.message || "Error updating profile")
                     setType("error")
@@ -132,17 +157,9 @@ const StudentProfile = () => {
             })
     }
 
-    const profilePicUrl = profile._id?.profilePic ? `http://localhost:5000/profilePics/${profile._id.profilePic}?t=${Date.now()}` : null
-    const uploadedPicUrl = uploadedProfilePic ? `http://localhost:5000/profilePics/${uploadedProfilePic}?t=${Date.now()}` : null
+    const profilePicUrl = profile._id?.profilePic ? `https://lms-apis-ht78.onrender.com/profilePics/${profile._id.profilePic}?t=${Date.now()}` : null
+    const uploadedPicUrl = uploadedProfilePic ? `https://lms-apis-ht78.onrender.com/profilePics/${uploadedProfilePic}?t=${Date.now()}` : null
     const imageUrl = !imageError ? (preview || uploadedPicUrl || profilePicUrl) : null
-
-    if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
-    }
 
     return (
         <div className="profile-container">
@@ -163,156 +180,164 @@ const StudentProfile = () => {
             </div>
 
             <Toast
-                msgText={message}
-                msgType={type}
-                clearMessage={() => setMessage("")}
+                message={message}
+                type={type}
+                onClose={() => setMessage("")}
             />
 
             <div className="profile-layout">
-                <div className="profile-sidebar">
-                    <div className="profile-picture-section">
-                        <div className="profile-picture">
-                            {imageUrl ? (
-                                <img
-                                    src={imageUrl}
-                                    alt="Profile"
-                                    onError={() => setImageError(true)}
-                                />
-                            ) : (
-                                profile._id?.name ? profile._id.name.charAt(0).toUpperCase() : '👤'
-                            )}
-                        </div>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleFileChange}
-                        />
-                        <button
-                            className="edit-profile-btn"
-                            title="Select New Profile Picture"
-                            onClick={() => fileInputRef.current.click()}
-                        >
-                            ✏️
-                        </button>
-
-                        {selectedFile && (
-                            <div className="profile-picture-button-group">
-                                <button
-                                    type="button"
-                                    className="btn-save"
-                                    onClick={saveProfilePic}
-                                    disabled={uploading}
-                                >
-                                    {uploading ? 'Saving...' : 'Save Picture'}
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn-cancel"
-                                    onClick={cancelProfilePic}
-                                    disabled={uploading}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        )}
-
-                        <h3 className="profile-name">{profile._id?.name || 'Student'}</h3>
-                        <p className="profile-role">Student</p>
+                {loading ? (
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                        <Loader text="Loading profile..." />
                     </div>
-
-                    <div className="profile-info">
-                        <div className="info-item">
-                            <span className="info-label">Email</span>
-                            <span className="info-value">{profile._id.email}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">Roll Number</span>
-                            <span className="info-value">{profile.enrollment || 'Not set'}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">Department</span>
-                            <span className="info-value">{profile.department || 'Not set'}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">Year</span>
-                            <span className="info-value">{profile.createdAt.split('-')[0] || 'Not set'}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="profile-main">
-                    <div className="profile-section">
-                        <div className="section-header">
-                            <h3 className="section-title">📝 Personal Information</h3>
-                            <p className="section-subtitle">Update your personal details</p>
-                        </div>
-                        <div className="section-body">
-                            <form onSubmit={handleSubmit} className="personal-info-form">
-                                <div className="form-group">
-                                    <label className="form-label">Department</label>
-                                    <select
-                                        name="department"
-                                        value={form.department}
-                                        onChange={handleChange}
-                                        required
-                                        className="form-select"
-                                    >
-                                        <option value="">Select Department</option>
-                                        <option value="CSE">CSE</option>
-                                        <option value="IT">IT</option>
-                                        <option value="ECE">ECE</option>
-                                        <option value="EEE">EEE</option>
-                                        <option value="MECH">MECH</option>
-                                        <option value="CIVIL">CIVIL</option>
-                                        <option value="AI">AI</option>
-                                        <option value="DS">DS</option>
-                                        <option value="CSBS">CSBS</option>
-                                        <option value="MBA">MBA</option>
-                                        <option value="BBA">BBA</option>
-                                        <option value="BCA">BCA</option>
-                                        <option value="MCA">MCA</option>
-                                    </select>
-                                </div>
-                                <div className="form-actions">
-                                    <button type="submit" className="btn-save" disabled={loading}>
-                                        💾 Save Changes
-                                    </button>
-                                    <button type="button" className="btn-cancel" onClick={() => setForm({ department: profile.department || '' })}>
-                                        ❌ Cancel
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div className="profile-section">
-                        <div className="section-header">
-                            <h3 className="section-title">📊 Academic Progress</h3>
-                            <p className="section-subtitle">Your current academic standing</p>
-                        </div>
-                        <div className="section-body">
-                            <div className="progress-overview">
-                                <div className="progress-item">
-                                    <div className="progress-number">{profile.courseIds?.length || 0}</div>
-                                    <div className="progress-label">Enrolled Subjects</div>
-                                </div>
-                                <div className="progress-item">
-                                    <div className="progress-number">{profile.completedSubjects?.length || 0}</div>
-                                    <div className="progress-label">Completed Subjects</div>
-                                </div>
-                                <div className="progress-item">
-                                    <div className="progress-number">
-                                        {profile.enrolledSubjects?.length > 0 ?
-                                            Math.round((profile.completedSubjects?.length || 0) / profile.progress.length * 100) : 0}%
+                ) : (
+                    <>
+                            <div className="profile-sidebar">
+                                <div className="profile-picture-section">
+                                    <div className="profile-picture">
+                                        {imageUrl ? (
+                                            <img
+                                                src={imageUrl}
+                                                alt="Profile"
+                                                onError={() => setImageError(true)}
+                                            />
+                                        ) : (
+                                            profile._id?.name ? profile._id.name.charAt(0).toUpperCase() : '👤'
+                                        )}
                                     </div>
-                                    <div className="progress-label">Overall Progress</div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        ref={fileInputRef}
+                                        style={{ display: "none" }}
+                                        onChange={handleFileChange}
+                                    />
+                                    <button
+                                        className="edit-profile-btn"
+                                        title="Select New Profile Picture"
+                                        onClick={() => fileInputRef.current.click()}
+                                    >
+                                        ✏️
+                                    </button>
+
+                                    {selectedFile && (
+                                        <div className="profile-picture-button-group">
+                                            <button
+                                                type="button"
+                                                className="btn-save"
+                                                onClick={saveProfilePic}
+                                                disabled={uploading}
+                                            >
+                                                {uploading ? 'Saving...' : 'Save Picture'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn-cancel"
+                                                onClick={cancelProfilePic}
+                                                disabled={uploading}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <h3 className="profile-name">{profile._id?.name || 'Student'}</h3>
+                                    <p className="profile-role">Student</p>
+                                </div>
+
+                                <div className="profile-info">
+                                    <div className="info-item">
+                                        <span className="info-label">Email</span>
+                                        <span className="info-value">{profile._id.email}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Roll Number</span>
+                                        <span className="info-value">{profile.enrollment || 'Not set'}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Department</span>
+                                        <span className="info-value">{profile.department || 'Not set'}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="info-label">Year</span>
+                                        <span className="info-value">{profile.createdAt.split('-')[0] || 'Not set'}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
+
+                            <div className="profile-main">
+                                <div className="profile-section">
+                                    <div className="section-header">
+                                        <h3 className="section-title">📝 Personal Information</h3>
+                                        <p className="section-subtitle">Update your personal details</p>
+                                    </div>
+                                    <div className="section-body">
+                                        <form onSubmit={handleSubmit} className="personal-info-form">
+                                            <div className="form-group">
+                                                <label className="form-label">Department</label>
+                                                <select
+                                                    name="department"
+                                                    value={form.department}
+                                                    onChange={handleChange}
+                                                    required
+                                                    className="form-select"
+                                                >
+                                                    <option value="">Select Department</option>
+                                                    <option value="CSE">CSE</option>
+                                                    <option value="IT">IT</option>
+                                                    <option value="ECE">ECE</option>
+                                                    <option value="EEE">EEE</option>
+                                                    <option value="MECH">MECH</option>
+                                                    <option value="CIVIL">CIVIL</option>
+                                                    <option value="AI">AI</option>
+                                                    <option value="DS">DS</option>
+                                                    <option value="CSBS">CSBS</option>
+                                                    <option value="MBA">MBA</option>
+                                                    <option value="BBA">BBA</option>
+                                                    <option value="BCA">BCA</option>
+                                                    <option value="MCA">MCA</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-actions">
+                                                <button type="submit" className="btn-save" disabled={loading}>
+                                                    💾 Save Changes
+                                                </button>
+                                                <button type="button" className="btn-cancel" onClick={() => setForm({ department: profile.department || '' })}>
+                                                    ❌ Cancel
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div className="profile-section">
+                                    <div className="section-header">
+                                        <h3 className="section-title">📊 Academic Progress</h3>
+                                        <p className="section-subtitle">Your current academic standing</p>
+                                    </div>
+                                    <div className="section-body">
+                                        <div className="progress-overview">
+                                            <div className="progress-item">
+                                                <div className="progress-number">{profile.courseIds?.length || 0}</div>
+                                                <div className="progress-label">Enrolled Subjects</div>
+                                            </div>
+                                            <div className="progress-item">
+                                                <div className="progress-number">{profile.completedSubjects?.length || 0}</div>
+                                                <div className="progress-label">Completed Subjects</div>
+                                            </div>
+                                            <div className="progress-item">
+                                                <div className="progress-number">
+                                                    {profile.enrolledSubjects?.length > 0 ?
+                                                        Math.round((profile.completedSubjects?.length || 0) / profile.progress.length * 100) : 0}%
+                                                </div>
+                                                <div className="progress-label">Overall Progress</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </>
+                )}
             </div>
         </div>
     )

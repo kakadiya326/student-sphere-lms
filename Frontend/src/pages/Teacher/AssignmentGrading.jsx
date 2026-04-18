@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { getSubmissionsForLesson, gradeSubmission } from '../../services/lessonService'
 import { getLesson } from '../../services/lessonService'
 import Toast from '../../components/Toast'
+import Loader from '../../components/Loader'
 
 const AssignmentGrading = () => {
     const { lessonId, assignmentIndex } = useParams()
@@ -28,8 +29,16 @@ const AssignmentGrading = () => {
             setSubmissions(submissionsRes.data.submissions || [])
         } catch (error) {
             console.log(error)
-            setMessage("Failed to load data")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to load data")
+                setType("error")
+            }
         } finally {
             setLoading(false)
         }
@@ -43,21 +52,37 @@ const AssignmentGrading = () => {
         e.preventDefault()
 
         try {
-            await gradeSubmission(gradingSubmission._id, {
+            const res = await gradeSubmission(gradingSubmission._id, {
                 score: parseInt(gradeForm.score),
                 feedback: gradeForm.feedback,
                 assignmentIndex: parseInt(assignmentIndex)
             })
 
-            setMessage("Submission graded successfully")
-            setType("success")
+            if (res.data.success) {
+                setMessage(res.data.success)
+                setType("success")
+            } else if (res.data.error) {
+                setMessage(res.data.error)
+                setType("error")
+            } else if (res.data.warning) {
+                setMessage(res.data.warning)
+                setType("warning")
+            }
             setGradingSubmission(null)
             setGradeForm({ score: '', feedback: '' })
             fetchData() // Refresh submissions
         } catch (error) {
             console.log(error)
-            setMessage("Failed to grade submission")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to grade submission")
+                setType("error")
+            }
         }
     }
 
@@ -70,11 +95,7 @@ const AssignmentGrading = () => {
     }
 
     if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
+        return <Loader text="Loading grading data..." />
     }
 
     const assignment = getAssignment()
@@ -107,9 +128,9 @@ const AssignmentGrading = () => {
             </div>
 
             <Toast
-                msgText={message}
-                msgType={type}
-                clearMessage={() => setMessage("")}
+                message={message}
+                type={type}
+                onClose={() => setMessage("")}
             />
 
             {/* Assignment Details */}

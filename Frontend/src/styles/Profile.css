@@ -505,23 +505,23 @@
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background-color: #4a90e2;
 }
 
 .btn-secondary {
-    background-color: #6c757d;
+    background-color: #9aa0a6;
 }
 
 .btn-danger {
-    background-color: #dc3545;
+    background-color: #e57373;
 }
 
 .btn-save {
-    background-color: #28a745;
+    background-color: #66bb6a;
 }
 
 .btn-cancel {
-    background-color: #6c757d;
+    background-color: #9aa0a6;
 }
 
 .empty-state {

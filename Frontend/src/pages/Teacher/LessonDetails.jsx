@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getLesson, addAssignmentToLesson, updateAssignment } from '../../services/lessonService'
 import Toast from '../../components/Toast'
+import Loader from '../../components/Loader'
 
 const LessonDetails = () => {
     const { lessonId } = useParams()
@@ -29,8 +30,16 @@ const LessonDetails = () => {
             setLesson(res.data.lesson)
         } catch (error) {
             console.log(error)
-            setMessage("Failed to load lesson")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to load lesson")
+                setType("error")
+            }
         } finally {
             setLoading(false)
         }
@@ -46,23 +55,47 @@ const LessonDetails = () => {
         try {
             if (editingAssignment !== null) {
                 // Update existing assignment
-                await updateAssignment(lessonId, editingAssignment, assignmentForm)
-                setMessage("Assignment updated successfully")
+                const res = await updateAssignment(lessonId, editingAssignment, assignmentForm)
+                if (res.data.success) {
+                    setMessage(res.data.success)
+                    setType("success")
+                } else if (res.data.error) {
+                    setMessage(res.data.error)
+                    setType("error")
+                } else if (res.data.warning) {
+                    setMessage(res.data.warning)
+                    setType("warning")
+                }
             } else {
                 // Add new assignment
-                await addAssignmentToLesson(lessonId, assignmentForm)
-                setMessage("Assignment added successfully")
+                const res = await addAssignmentToLesson(lessonId, assignmentForm)
+                if (res.data.success) {
+                    setMessage(res.data.success)
+                    setType("success")
+                } else if (res.data.error) {
+                    setMessage(res.data.error)
+                    setType("error")
+                } else if (res.data.warning) {
+                    setMessage(res.data.warning)
+                    setType("warning")
+                }
             }
-
-            setType("success")
             setShowAssignmentForm(false)
             setEditingAssignment(null)
             resetAssignmentForm()
             fetchLesson() // Refresh lesson data
         } catch (error) {
             console.log(error)
-            setMessage("Failed to save assignment")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to save assignment")
+                setType("error")
+            }
         }
     }
 
@@ -117,11 +150,7 @@ const LessonDetails = () => {
     }
 
     if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
+        return <Loader text="Loading lesson details..." />
     }
 
     if (!lesson) {
@@ -168,9 +197,9 @@ const LessonDetails = () => {
             </div>
 
             <Toast
-                msgText={message}
-                msgType={type}
-                clearMessage={() => setMessage("")}
+                message={message}
+                type={type}
+                onClose={() => setMessage("")}
             />
 
             {showAssignmentForm && (

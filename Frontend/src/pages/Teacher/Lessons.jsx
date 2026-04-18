@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getTeacherLessonsBySubject, createLesson, updateLesson, deleteLesson, reorderLessons } from '../../services/lessonService'
 import Toast from '../../components/Toast'
+import Loader from '../../components/Loader'
 
 const TeacherLessons = () => {
     const { subjectId } = useParams()
@@ -26,8 +27,16 @@ const TeacherLessons = () => {
             setLessons(res.data.lessons || [])
         } catch (error) {
             console.log(error)
-            setMessage("Failed to load lessons")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to load lessons")
+                setType("error")
+            }
         } finally {
             setLoading(false)
         }
@@ -125,8 +134,17 @@ const TeacherLessons = () => {
 
         try {
             if (editingLessonId) {
-                await updateLesson(editingLessonId, lessonForm)
-                setMessage("Lesson updated successfully")
+                const res = await updateLesson(editingLessonId, lessonForm)
+                if (res.data.success) {
+                    setMessage(res.data.success)
+                    setType("success")
+                } else if (res.data.error) {
+                    setMessage(res.data.error)
+                    setType("error")
+                } else if (res.data.warning) {
+                    setMessage(res.data.warning)
+                    setType("warning")
+                }
             } else {
                 const formData = new FormData()
 
@@ -139,18 +157,34 @@ const TeacherLessons = () => {
                 // 🔥 MUST stringify arrays
                 // formData.append("assignments", JSON.stringify(lessonForm.assignments))
                 // formData.append("resources", JSON.stringify(lessonForm.resources))
-                await createLesson(
+                const res = await createLesson(
                     formData
                 )
-                setMessage("Lesson created successfully")
+                if (res.data.success) {
+                    setMessage(res.data.success)
+                    setType("success")
+                } else if (res.data.error) {
+                    setMessage(res.data.error)
+                    setType("error")
+                } else if (res.data.warning) {
+                    setMessage(res.data.warning)
+                    setType("warning")
+                }
             }
-            setType("success")
             resetForm()
             fetchData()
         } catch (error) {
             console.log(error)
-            setMessage(editingLessonId ? "Failed to update lesson" : "Failed to create lesson")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage(editingLessonId ? "Failed to update lesson" : "Failed to create lesson")
+                setType("error")
+            }
         }
     }
 
@@ -159,22 +193,30 @@ const TeacherLessons = () => {
 
         try {
             await deleteLesson(lessonId)
-            setMessage("Lesson deleted successfully")
-            setType("success")
+            if (res.data.success) {
+                setMessage(res.data.success)
+                setType("success")
+            } else if (res.data.error) {
+                setMessage(res.data.error)
+                setType("error")
+            } else if (res.data.warning) {
+                setMessage(res.data.warning)
+                setType("warning")
+            }
             fetchData() // Refresh list
         } catch (error) {
             console.log(error)
-            setMessage("Failed to delete lesson")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to delete lesson")
+                setType("error")
+            }
         }
-    }
-
-    if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
     }
 
     return (
@@ -215,9 +257,9 @@ const TeacherLessons = () => {
             </div>
 
             <Toast
-                msgText={message}
-                msgType={type}
-                clearMessage={() => setMessage("")}
+                message={message}
+                type={type}
+                onClose={() => setMessage("")}
             />
 
             {showCreateForm && (
@@ -350,7 +392,11 @@ const TeacherLessons = () => {
             )}
 
             <div style={{ display: 'grid', gap: '20px' }}>
-                {lessons.length === 0 ? (
+                {loading ? (
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                        <Loader text="Loading lessons..." />
+                    </div>
+                ) : lessons.length === 0 ? (
                     <div style={{
                         textAlign: 'center',
                         padding: '40px',
@@ -377,6 +423,12 @@ const TeacherLessons = () => {
                                 opacity: draggedLesson?._id === lesson._id ? 0.5 : 1,
                                 cursor: isReorderMode ? 'grab' : 'default',
                                 transition: 'all 0.3s'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-3px)'
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)'
                             }}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>

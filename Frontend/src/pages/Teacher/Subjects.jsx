@@ -2,23 +2,37 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createSubject, getSubjects, updateSubject, deleteSubject } from '../../services/subjectService';
 import Toast from '../../components/Toast';
+import Loader from '../../components/Loader';
 
 const Subjects = () => {
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', code: '' })
   const [subjects, setSubjects] = useState([])
+  const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [type, setType] = useState('')
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState({ name: '', code: '' })
 
   const fetchSubjects = async () => {
+    setLoading(true)
     try {
       const res = await getSubjects()
-      setSubjects(res.data.subjects)
-    } catch {
-      setMessage('Failed to load subjects')
-      setType('error')
+      setSubjects(res.data.subjects || [])
+    } catch (error) {
+      if (error.response?.data?.error) {
+        setMessage(error.response.data.error)
+        setType('error')
+      } else if (error.response?.data?.warning) {
+        setMessage(error.response.data.warning)
+        setType('warning')
+      } else {
+        setMessage('Failed to load subjects')
+        setType('error')
+      }
+      setSubjects([])
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -40,13 +54,29 @@ const Subjects = () => {
 
     try {
       let res = await createSubject(form)
-      setMessage(res.data.success || res.data.error)
-      setType(res.data.success ? 'success' : 'error')
+      if (res.data.success) {
+        setMessage(res.data.success)
+        setType('success')
+      } else if (res.data.error) {
+        setMessage(res.data.error)
+        setType('error')
+      } else if (res.data.warning) {
+        setMessage(res.data.warning)
+        setType('warning')
+      }
       setForm({ name: '', code: '' })
       fetchSubjects()
-    } catch {
-      setMessage('Failed to add subject')
-      setType('error')
+    } catch (error) {
+      if (error.response?.data?.error) {
+        setMessage(error.response.data.error)
+        setType('error')
+      } else if (error.response?.data?.warning) {
+        setMessage(error.response.data.warning)
+        setType('warning')
+      } else {
+        setMessage('Failed to add subject')
+        setType('error')
+      }
     }
   }
 
@@ -73,13 +103,29 @@ const Subjects = () => {
 
     try {
       const res = await updateSubject(editForm, subjectId)
-      setMessage(res.data.success || res.data.error)
-      setType(res.data.success ? 'success' : 'error')
+      if (res.data.success) {
+        setMessage(res.data.success)
+        setType('success')
+      } else if (res.data.error) {
+        setMessage(res.data.error)
+        setType('error')
+      } else if (res.data.warning) {
+        setMessage(res.data.warning)
+        setType('warning')
+      }
       setEditingId(null)
       fetchSubjects()
-    } catch {
-      setMessage('Failed to update subject')
-      setType('error')
+    } catch (error) {
+      if (error.response?.data?.error) {
+        setMessage(error.response.data.error)
+        setType('error')
+      } else if (error.response?.data?.warning) {
+        setMessage(error.response.data.warning)
+        setType('warning')
+      } else {
+        setMessage('Failed to update subject')
+        setType('error')
+      }
     }
   }
 
@@ -89,12 +135,28 @@ const Subjects = () => {
 
     try {
       const res = await deleteSubject(subjectId)
-      setMessage(res.data.success || res.data.error)
-      setType(res.data.success ? 'success' : 'error')
+      if (res.data.success) {
+        setMessage(res.data.success)
+        setType('success')
+      } else if (res.data.error) {
+        setMessage(res.data.error)
+        setType('error')
+      } else if (res.data.warning) {
+        setMessage(res.data.warning)
+        setType('warning')
+      }
       fetchSubjects()
-    } catch {
-      setMessage('Failed to delete subject')
-      setType('error')
+    } catch (error) {
+      if (error.response?.data?.error) {
+        setMessage(error.response.data.error)
+        setType('error')
+      } else if (error.response?.data?.warning) {
+        setMessage(error.response.data.warning)
+        setType('warning')
+      } else {
+        setMessage('Failed to delete subject')
+        setType('error')
+      }
     }
   }
 
@@ -105,7 +167,7 @@ const Subjects = () => {
         <p>Create, edit, and delete your course subjects in one place.</p>
       </div>
 
-      <Toast msgText={message} msgType={type} clearMessage={() => setMessage('')} />
+      <Toast message={message} type={type} onClose={() => setMessage('')} />
 
       <div className='subject-controls'>
         <form className='subject-form' onSubmit={handleSubmit}>
@@ -128,7 +190,9 @@ const Subjects = () => {
       </div>
 
       <div className='subject-list'>
-        {subjects && subjects.length > 0 ? (
+        {loading ? (
+          <Loader text="Loading subjects..." />
+        ) : subjects && subjects.length > 0 ? (
           subjects.map((subject) => (
             <div key={subject._id} className='subject-card'>
               {editingId === subject._id ? (

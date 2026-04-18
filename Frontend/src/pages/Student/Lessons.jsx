@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getLessonsBySubject, getStudentSubmissions } from '../../services/lessonService'
 import Toast from '../../components/Toast'
+import Loader from '../../components/Loader'
 import '../../styles/Lessons.css'
 
 const StudentLessons = () => {
@@ -28,8 +29,16 @@ const StudentLessons = () => {
             }
         } catch (error) {
             console.log(error)
-            setMessage("Failed to load lessons")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to load lessons")
+                setType("error")
+            }
         } finally {
             setLoading(false)
         }
@@ -73,14 +82,6 @@ const StudentLessons = () => {
         return totalAssignments > 0 ? Math.round((totalSubmissions / totalAssignments) * 100) : 0
     }
 
-    if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
-    }
-
     const totalProgress = calculateTotalProgress()
 
     return (
@@ -103,9 +104,9 @@ const StudentLessons = () => {
             </div>
 
             <Toast
-                msgText={message}
-                msgType={type}
-                clearMessage={() => setMessage("")}
+                message={message}
+                type={type}
+                onClose={() => setMessage("")}
             />
 
             {/* Overall Progress Summary */}
@@ -130,7 +131,11 @@ const StudentLessons = () => {
             )}
 
             <div className="lessons-grid">
-                {lessons.length === 0 ? (
+                {loading ? (
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                        <Loader text="Loading lessons..." />
+                    </div>
+                ) : lessons.length === 0 ? (
                     <div className="empty-state">
                         <h3>📭 No lessons yet</h3>
                         <p>Your teacher hasn't created any lessons for this subject yet.</p>

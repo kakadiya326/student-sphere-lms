@@ -30,8 +30,16 @@ const Dashboard = () => {
             setSubmissions(submissionsRes.data.submissions || [])
         } catch (error) {
             console.log(error)
-            setMessage("Failed to load dashboard data")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to load dashboard data")
+                setType("error")
+            }
         } finally {
             setLoading(false)
         }

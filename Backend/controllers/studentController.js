@@ -33,7 +33,7 @@ let updateStudentProfile = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.json({ error: "Error updating profile" })
+        res.json({ "error": "Error updating profile" })
     }
 }
 
@@ -46,7 +46,7 @@ let getStudentProfile = async (req, res) => {
         res.json({ student })
 
     } catch (error) {
-        res.json({ error: "Error fetching profile" })
+        res.json({ "error": "Error fetching profile" })
     }
 }
 

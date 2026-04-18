@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getLesson, submitAssignment, getStudentSubmissions, markLessonComplete } from '../../services/lessonService'
 import Toast from '../../components/Toast'
+import Loader from '../../components/Loader'
 import '../../styles/LessonView.css'
 
 const LessonView = () => {
@@ -44,8 +45,16 @@ const LessonView = () => {
             setAssignmentAnswers(answers)
         } catch (error) {
             console.log(error)
-            setMessage("Failed to load lesson")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to load lesson")
+                setType("error")
+            }
         } finally {
             setLoading(false)
         }
@@ -101,7 +110,7 @@ const LessonView = () => {
             }
 
             // Submit using the service
-            await submitAssignment({
+            const res = await submitAssignment({
                 lessonId,
                 assignmentIndex,
                 answers: answer.answers || [],
@@ -109,8 +118,10 @@ const LessonView = () => {
                 files: answer.files || []
             })
 
-            setMessage("Assignment submitted successfully! 🎉")
-            setType("success")
+            if (res.data.success) {
+                setMessage(res.data.success)
+                setType("success")
+            }
             fetchData() // Refresh submissions
 
             // Move to next assignment or mark lesson complete
@@ -119,8 +130,16 @@ const LessonView = () => {
             }
         } catch (error) {
             console.log(error)
-            setMessage("Failed to submit assignment")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to submit assignment")
+                setType("error")
+            }
         } finally {
             setSubmitting(false)
         }
@@ -138,14 +157,24 @@ const LessonView = () => {
 
     const handleMarkComplete = async () => {
         try {
-            await markLessonComplete({ lessonId })
-            setMessage("Lesson marked as complete! 🎉")
-            setType("success")
+            const res = await markLessonComplete({ lessonId })
+            if (res.data.success) {
+                setMessage(res.data.success)
+                setType("success")
+            }
             fetchData()
         } catch (error) {
             console.log(error)
-            setMessage("Failed to mark lesson complete")
-            setType("error")
+            if (error.response?.data?.error) {
+                setMessage(error.response.data.error)
+                setType("error")
+            } else if (error.response?.data?.warning) {
+                setMessage(error.response.data.warning)
+                setType("warning")
+            } else {
+                setMessage("Failed to mark lesson complete")
+                setType("error")
+            }
         }
     }
 
@@ -180,11 +209,7 @@ const LessonView = () => {
     }
 
     if (loading) {
-        return (
-            <div className="loader-overlay">
-                <div className="myspin"></div>
-            </div>
-        )
+        return <Loader text="Loading lesson..." />
     }
 
     if (!lesson) {
@@ -271,9 +296,9 @@ const LessonView = () => {
                     )}
 
                     <Toast
-                        msgText={message}
-                        msgType={type}
-                        clearMessage={() => setMessage("")}
+                            message={message}
+                            type={type}
+                            onClose={() => setMessage("")}
                     />
                 </>
             )}

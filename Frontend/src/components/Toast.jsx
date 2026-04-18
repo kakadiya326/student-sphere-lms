@@ -1,19 +1,19 @@
 import React, { useEffect } from 'react'
 import '../styles/global.css'
 
-const Toast = ({ msgText, msgType, clearMessage }) => {
+const Toast = ({ message, type, onClose }) => {
     useEffect(() => {
-        if (msgText) {
-            const timer = setTimeout(() => clearMessage(), 3000)
+        if (message) {
+            const timer = setTimeout(() => onClose(), 3000)
 
             return () => clearTimeout(timer)
         }
-    }, [msgText, clearMessage])
+    }, [message, onClose])
 
-    if (!msgText) return null
+    if (!message) return null
     return (
-        <div className={`toast ${msgType}`}>
-            {msgText}
+        <div className={`toast ${type}`}>
+            {message}
         </div>
     )
 }
