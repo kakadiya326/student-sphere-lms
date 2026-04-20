@@ -13,7 +13,7 @@ const CompleteTeacherProfile = () => {
             await updateTeacherProfile({ department })
             navigate('/teacher')
         } catch (error) {
-            console.log(error)
+
         }
     }
 

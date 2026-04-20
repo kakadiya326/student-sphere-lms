@@ -24,7 +24,7 @@ let register = async (req, res) => {
             res.json({ "success": "Registered successfully!!" })
         }
     } catch (e) {
-        console.log(e);
+        ;
         res.status(500).json({ "error": "Error in registration" })
     }
 }
@@ -45,7 +45,7 @@ let login = async (req, res) => {
         let token = await jwt.sign({ id: user._id, role: user.role, name: user.name, email: user.email }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN })
         res.json({ "success": "Login success", "userData": { ...user._doc, "password": "" }, token })
     } catch (e) {
-        console.log(e);
+        ;
         res.status(500).json({ "error": "Error in login" })
     }
 }
@@ -63,15 +63,11 @@ const uploadProfilePic = async (req, res) => {
 
         const user = await userModel.findById(userId);
         if (!user) return res.status(404).json({ "error": "User not found." })
-        console.log(user);
         if (user.profilePic) {
             const oldPath = path.join(__dirname, '../profilePics', user.profilePic)
             if (fs.existsSync(oldPath)) {
                 fs.unlinkSync(oldPath)
-                console.log('Old image deleted:', user.profilePic)
-            } else {
-                console.log('else part Old image deleted:', user.profilePic)
-            }
+            } 
 
         }
 

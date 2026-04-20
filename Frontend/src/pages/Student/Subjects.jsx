@@ -30,7 +30,7 @@ const Subjects = () => {
                 setLoading(false)
             })
             .catch((error) => {
-                console.log(error)
+
                 if (error.response && error.response.status === 401) {
                     setMessage("Session expired. Please login again.")
                     setType("error")
@@ -65,7 +65,7 @@ const Subjects = () => {
                 fetchSubjects() // refresh UI
             })
             .catch((error) => {
-                console.log(error)
+
                 if (error.response && error.response.status === 401) {
                     setMessage("Session expired. Please login again.")
                     setType("error")
@@ -90,7 +90,7 @@ const Subjects = () => {
                 fetchSubjects() // refresh UI
             })
             .catch((error) => {
-                console.log(error)
+
                 if (error.response && error.response.status === 401) {
                     setMessage("Session expired. Please login again.")
                     setType("error")

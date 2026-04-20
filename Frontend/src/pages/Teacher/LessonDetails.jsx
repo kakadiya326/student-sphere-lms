@@ -29,7 +29,7 @@ const LessonDetails = () => {
             const res = await getLesson(lessonId)
             setLesson(res.data.lesson)
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")
@@ -85,7 +85,7 @@ const LessonDetails = () => {
             resetAssignmentForm()
             fetchLesson() // Refresh lesson data
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")

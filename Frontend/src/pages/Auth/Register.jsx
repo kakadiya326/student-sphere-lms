@@ -50,7 +50,6 @@ const Register = () => {
     const [otpLoading, setOtpLoading] = useState(false)
 
     useEffect(() => {
-        console.log('Step changed to:', step)
     }, [step])
 
     const navigate = useNavigate()
@@ -92,9 +91,7 @@ const Register = () => {
         setOtpLoading(true)
         try {
             const email = form.email.trim().toLowerCase();
-            console.log('Sending OTP request for email:', email);
             const response = await verifyEmail({ email })
-            console.log('OTP response:', response);
 
             // Check for warning in response
             if (response.data.warning) {
@@ -118,10 +115,8 @@ const Register = () => {
             // Force state update with timeout to ensure it happens after current tick
             setTimeout(() => {
                 setStep('otp')
-                console.log('Step changed to otp')
             }, 100)
         } catch (error) {
-            console.log('OTP send error:', error)
             const warning = error.response?.data?.warning
             if (warning) {
                 setMessage(warning)
@@ -148,7 +143,6 @@ const Register = () => {
         setOtpLoading(true)
         try {
             const response = await verifyOtp({ email: form.email.trim(), otp: form.otp })
-            console.log('OTP verify response:', response);
 
             // Check for warning or error in response
             if (response.data.warning) {
@@ -167,7 +161,7 @@ const Register = () => {
             setType("success")
             setStep('form')
         } catch (error) {
-            console.log('OTP verify error:', error)
+            ('OTP verify error:', error)
             setMessage("Failed to verify OTP. Please try again.")
             setType("error")
         } finally {
@@ -228,7 +222,7 @@ const Register = () => {
             }, 2000)
 
         } catch (error) {
-            console.log(error);
+
             if (error.response?.data?.warning) {
                 const warningText = error.response.data.warning
                 setMessage(warningText)

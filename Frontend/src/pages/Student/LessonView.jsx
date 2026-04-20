@@ -44,7 +44,7 @@ const LessonView = () => {
             })
             setAssignmentAnswers(answers)
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")
@@ -129,7 +129,7 @@ const LessonView = () => {
                 setCurrentAssignment(assignmentIndex + 1)
             }
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")
@@ -164,7 +164,7 @@ const LessonView = () => {
             }
             fetchData()
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")

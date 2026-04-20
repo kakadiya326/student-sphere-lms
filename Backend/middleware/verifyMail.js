@@ -15,11 +15,10 @@ let verifyOTP = async (req, res, next) => {
         }
 
         // For testing - accept any 6-digit OTP
-        console.log('TEST MODE: Verifying OTP', otp, 'for', email);
         next();
 
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error in verifying OTP" })
     }
 }

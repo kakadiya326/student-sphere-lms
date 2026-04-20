@@ -22,7 +22,7 @@ const StudentGrades = () => {
             const response = await api.get('/student/submissions/all')
             setSubmissions(response.data.submissions || [])
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")

@@ -60,7 +60,7 @@ let getSubjects = async (req, res) => {
         res.json({ subjects })
 
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error fetching subjects" })
     }
 }
@@ -157,7 +157,7 @@ let mySubjects = async (req, res) => {
 
         res.json({ "success": "All enrolled subjects fetched", "subjects": student.courseIds, "progress": student.progress })
     } catch (error) {
-        console.log(error);
+
         res.status(500).json({ "error": "Your enrolled subjects not fetched." })
     }
 }
@@ -182,7 +182,7 @@ let updateProgress = async (req, res) => {
 
         res.json({ "success": "Progress updated" })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error updating progress" })
     }
 }
@@ -207,7 +207,7 @@ let enrollInSubject = async (req, res) => {
         )
         res.json({ "success": "Enrolled successfully", student })
     } catch (error) {
-        console.log(error);
+
         res.status(500).json({ "error": "Something went wrong." })
     }
 }
@@ -231,7 +231,7 @@ let unenrollFromSubject = async (req, res) => {
 
         res.json({ "success": "Unenrolled successfully", student })
     } catch (error) {
-        console.log(error)
+
         res.json({ "error": "Something went wrong." })
     }
 }

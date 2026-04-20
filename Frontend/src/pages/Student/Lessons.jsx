@@ -28,7 +28,7 @@ const StudentLessons = () => {
                 setSubjectInfo(lessonsRes.data.lessons[0].subjectId)
             }
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")

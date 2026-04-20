@@ -26,7 +26,7 @@ const TeacherLessons = () => {
             const res = await getTeacherLessonsBySubject(subjectId)
             setLessons(res.data.lessons || [])
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")
@@ -94,7 +94,7 @@ const TeacherLessons = () => {
             setMessage("Lessons reordered successfully")
             setType("success")
         } catch (error) {
-            console.log(error)
+
             setMessage("Failed to reorder lessons")
             setType("error")
         }
@@ -174,7 +174,7 @@ const TeacherLessons = () => {
             resetForm()
             fetchData()
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")
@@ -205,7 +205,7 @@ const TeacherLessons = () => {
             }
             fetchData() // Refresh list
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")

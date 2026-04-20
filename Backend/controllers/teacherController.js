@@ -29,7 +29,7 @@ let profileUpdate = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error)
+
         res.json({ "error": "Error updating profile" })
     }
 }

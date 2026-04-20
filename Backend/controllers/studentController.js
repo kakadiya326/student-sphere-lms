@@ -32,7 +32,7 @@ let updateStudentProfile = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error)
+
         res.json({ "error": "Error updating profile" })
     }
 }

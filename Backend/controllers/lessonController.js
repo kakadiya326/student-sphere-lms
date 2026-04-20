@@ -7,7 +7,6 @@ const studentModel = require("../models/studentModel");
 let createLesson = async (req, res) => {
     try {
         const userId = req.user.id
-        console.log("BODY:", req.body)
 
         let {
             title,
@@ -62,7 +61,6 @@ let createLesson = async (req, res) => {
         res.json({ "success": "Lesson created", lesson })
 
     } catch (error) {
-        console.log(error)
         res.json({ "error": "Error creating lesson" })
     }
 }
@@ -90,7 +88,6 @@ let getLessonsBySubject = async (req, res) => {
 
         res.json({ lessons })
     } catch (error) {
-        console.log(error);
         res.json({ "error": "Error fetching lessons" })
     }
 }
@@ -113,7 +110,7 @@ let getLesson = async (req, res) => {
 
         res.json({ lesson })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error fetching lesson" })
     }
 }
@@ -148,7 +145,7 @@ let updateLesson = async (req, res) => {
 
         res.json({ "success": "Lesson updated", lesson: updatedLesson })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error updating lesson" })
     }
 }
@@ -178,7 +175,7 @@ let deleteLesson = async (req, res) => {
 
         res.json({ "success": "Lesson deleted" })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error deleting lesson" })
     }
 }
@@ -207,7 +204,7 @@ let reorderLessons = async (req, res) => {
 
         res.json({ "success": "Lessons reordered" })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error reordering lessons" })
     }
 }
@@ -240,7 +237,7 @@ let addAssignmentToLesson = async (req, res) => {
 
         res.json({ "success": "Assignment added", lesson })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error adding assignment" })
     }
 }
@@ -276,7 +273,7 @@ let updateAssignment = async (req, res) => {
 
         res.json({ "success": "Assignment updated", lesson })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error updating assignment" })
     }
 }
@@ -419,7 +416,7 @@ let getSubmissionsForLesson = async (req, res) => {
 
         res.json({ submissions })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error fetching submissions" })
     }
 }
@@ -464,7 +461,7 @@ let gradeSubmission = async (req, res) => {
 
         res.json({ "success": "Submission graded", submission })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error grading submission" })
     }
 }
@@ -498,7 +495,7 @@ let markLessonComplete = async (req, res) => {
 
         res.json({ "success": "Lesson marked as complete" })
     } catch (error) {
-        console.log(error);
+
         res.json({ "error": "Error updating lesson progress" })
     }
 }

@@ -13,7 +13,7 @@ const CompleteProfile = () => {
             await updateStudentProfile({ department })
             navigate('/student')
         } catch (error) {
-            console.log(error)
+
         }
     }
 

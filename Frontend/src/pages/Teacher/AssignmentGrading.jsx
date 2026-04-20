@@ -28,7 +28,7 @@ const AssignmentGrading = () => {
             setLesson(lessonRes.data.lesson)
             setSubmissions(submissionsRes.data.submissions || [])
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")
@@ -72,7 +72,7 @@ const AssignmentGrading = () => {
             setGradeForm({ score: '', feedback: '' })
             fetchData() // Refresh submissions
         } catch (error) {
-            console.log(error)
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")

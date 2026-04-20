@@ -9,8 +9,6 @@ const sendOTP = async (req, res) => {
         const { email } = req.body;
         const normalizedEmail = email?.trim().toLowerCase();
 
-        console.log('-------------------------------------------------------', req, req.body);
-
         if (!normalizedEmail) {
             return res.status(400).json({ "error": "Email is required." });
         }
@@ -49,7 +47,6 @@ const sendOTP = async (req, res) => {
         return res.json({ "success": "OTP sent successfully", "otpFlag": true });
 
     } catch (err) {
-        console.log(err);
         res.status(500).json({ "error": "Failed to send OTP" });
     }
 };

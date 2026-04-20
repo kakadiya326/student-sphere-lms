@@ -30,7 +30,7 @@ const StudentProfile = () => {
                 setLoading(false)
             })
             .catch((error) => {
-                console.log(error)
+
                 if (error.response && error.response.status === 401) {
                     setMessage("Session expired. Please login again.")
                     setType("error")
@@ -93,7 +93,7 @@ const StudentProfile = () => {
                 fetchProfile() // Refresh profile
             })
             .catch((error) => {
-                console.log(error)
+
                 if (error.response?.data?.error) {
                     setMessage(error.response.data.error)
                     setType("error")
@@ -135,7 +135,7 @@ const StudentProfile = () => {
                 fetchProfile() // Refresh profile
             })
             .catch((error) => {
-                console.log(error)
+
                 if (error.response && error.response.status === 401) {
                     setMessage("Session expired. Please login again.")
                     setType("error")

@@ -41,7 +41,6 @@ let sendOTPEmail = async (to, otp) => {
         }
 
         let info = await transporter.sendMail(mailOptions);
-        console.log('Mail send result:', info);
 
         if (Array.isArray(info.accepted) && info.accepted.length > 0 && (!info.rejected || info.rejected.length === 0)) {
             return true;

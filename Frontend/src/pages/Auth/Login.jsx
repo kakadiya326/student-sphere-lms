@@ -95,14 +95,13 @@ const Login = () => {
                 setMessage("Login successful")
                 setType("success")
             } catch (decodeError) {
-                console.log(decodeError);
                 setMessage("Invalid token received")
                 setType("error")
                 localStorage.removeItem('token')
             }
 
         } catch (error) {
-            console.log(error);
+
             if (error.response?.data?.error) {
                 setMessage(error.response.data.error)
                 setType("error")
